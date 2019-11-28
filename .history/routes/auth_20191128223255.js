@@ -11,14 +11,8 @@ const auth = require('../middleware/auth');
 // @desc   Get logged in user
 // @access Private
 
-router.get('/', auth, async (req, res) => {
-	try {
-		const user = await User.findById(req.user.id).select('-password');
-		res.json(user);
-	} catch (err) {
-		console.error(err.message);
-		res.status(500).send('Server error occured');
-	}
+router.get('/', auth, (req, res) => {
+	res.send('Login User');
 });
 
 // @route  POST api/auth
