@@ -9,16 +9,7 @@ const config = require('config');
 // @route  GET api/auth
 // @desc   Get logged in user
 // @access Private
-
-router.get('/', (req, res) => {
-	res.send('Login User');
-});
-
-// @route  POST api/auth
-// @desc   Auth user and get token
-// @access Public
-
-router.post(
+router.get(
 	'/',
 	[check('email', 'Please enter a valid email').isEmail(), check('password', 'Password is required').exists()],
 	async (req, res) => {
@@ -29,36 +20,15 @@ router.post(
 		const { email, password } = req.body;
 		try {
 			let user = await User.findOne({ email });
-			if (!user) {
-				return res.status(400).json({ msg: 'No user with that email' });
-			}
-
-			const isMatch = await bcrypt.compare(password, user.password);
-			if (!isMatch) {
-				return res.status(400).json({ msg: 'Passwords dont match' });
-			}
-			const payload = {
-				user: {
-					id: user.id,
-				},
-			};
-
-			jwt.sign(
-				payload,
-				config.get('jwtSecret'),
-				{
-					expiresIn: 3600,
-				},
-				(err, token) => {
-					if (err) throw err;
-					res.json({ token });
-				}
-			);
-		} catch (err) {
-			console.error(err.message);
-			res.status(500).send('Server error occured');
-		}
+		} catch (err) {}
 	}
 );
+
+// @route  POST api/auth
+// @desc   Auth user and get token
+// @access Public
+router.post('/', (req, res) => {
+	res.send('Login User');
+});
 
 module.exports = router;

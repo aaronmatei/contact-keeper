@@ -6,39 +6,28 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
-// @route  POST api/users
-// @desc   Register a user
-// @access Public
-router.post(
+// @route  GET api/auth
+// @desc   Get logged in user
+// @access Private
+router.get(
 	'/',
-	[
-		check('name', 'Please add a name')
-			.not()
-			.isEmpty(),
-		check('email', 'Please enter a valid email').isEmail(),
-		check('password', 'Please enter a 6 character password').isLength({ min: 6 }),
-	],
+	[check('email', 'Please enter a valid email').isEmail(), check('password', 'Password is required').exists()],
 	async (req, res) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
 		}
-		const { name, email, password } = req.body;
+		const { email, password } = req.body;
 		try {
 			let user = await User.findOne({ email });
-			if (user) {
-				return res.status(400).json({ msg: 'User with that email already exists' });
+			if (!user) {
+				return res.status(400).json({ msg: 'Invalid credentials' });
 			}
-			user = new User({
-				name,
-				email,
-				password,
-			});
 
-			const salt = await bcrypt.genSalt(10);
-			user.password = await bcrypt.hash(password, salt);
-			await user.save();
-
+			const isMatch = await bcrypt.compare(password, user.password);
+			if (!match) {
+				return res.status(400).json({ msg: 'Passwords dont match' });
+			}
 			const payload = {
 				user: {
 					id: user.id,
@@ -58,9 +47,16 @@ router.post(
 			);
 		} catch (err) {
 			console.error(err.message);
-			res.status(500).send('Server Error');
+			res.status(500).send('Server error occured');
 		}
 	}
 );
+
+// @route  POST api/auth
+// @desc   Auth user and get token
+// @access Public
+router.post('/', (req, res) => {
+	res.send('Login User');
+});
 
 module.exports = router;
