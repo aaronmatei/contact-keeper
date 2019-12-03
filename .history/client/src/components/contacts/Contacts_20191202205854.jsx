@@ -13,28 +13,24 @@ const Contacts = () => {
 		// eslint-disable-next-line
 	}, []);
 
-	if (contacts !== null && contacts.length === 0 && !loading) {
+	if (contacts.length === 0) {
 		return <h1>Please add a contact</h1>;
 	}
 	return (
 		<Fragment>
-			{contacts !== null && !loading ? (
-				<TransitionGroup>
-					{filtered !== null
-						? filtered.map(contact => (
-								<CSSTransition key={contact._id} timeout={500} classNames='item'>
-									<ContactItem contact={contact} />
-								</CSSTransition>
-						  ))
-						: contacts.map(contact => (
-								<CSSTransition key={contact._id} timeout={500} classNames='item'>
-									<ContactItem contact={contact} />
-								</CSSTransition>
-						  ))}
-				</TransitionGroup>
-			) : (
-				<Spinner />
-			)}
+			<TransitionGroup>
+				{filtered !== null
+					? filtered.map(contact => (
+							<CSSTransition key={contact._id} timeout={500} classNames='item'>
+								<ContactItem contact={contact} />
+							</CSSTransition>
+					  ))
+					: contacts.map(contact => (
+							<CSSTransition key={contact._id} timeout={500} classNames='item'>
+								<ContactItem contact={contact} />
+							</CSSTransition>
+					  ))}
+			</TransitionGroup>
 		</Fragment>
 	);
 };
